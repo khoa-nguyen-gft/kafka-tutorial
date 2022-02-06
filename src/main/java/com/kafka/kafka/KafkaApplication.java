@@ -31,6 +31,8 @@ public class KafkaApplication {
 //            producer.commitTransaction();
 
         }
+
+        // IMPORTANCE
         producer.flush();
         producer.close();
     }
