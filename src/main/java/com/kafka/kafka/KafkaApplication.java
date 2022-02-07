@@ -1,15 +1,21 @@
 package com.kafka.kafka;
 
+import org.apache.kafka.clients.producer.Callback;
 import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.kafka.clients.producer.ProducerRecord;
+import org.apache.kafka.clients.producer.RecordMetadata;
 import org.apache.kafka.common.serialization.StringSerializer;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 import java.util.Properties;
 
 @SpringBootApplication
 public class KafkaApplication {
+
+    private static final Logger log = LoggerFactory.getLogger(KafkaApplication.class);
 
     public static void main(String[] args) {
 
@@ -25,9 +31,25 @@ public class KafkaApplication {
         KafkaProducer producer = new KafkaProducer<>(producerProps);
 //        producer.initTransactions();
 //        producer.beginTransaction();
-        for (int i = 0; i <10; i ++){
+        for (int i = 0; i < 50; i++) {
             System.out.println("Sending i -->" + i);
-            producer.send(new ProducerRecord<>("topicIn3", String.valueOf(i), "Simple Message-T1-" + i));
+
+            ProducerRecord<String, String> record = new ProducerRecord<>("topicIn3", String.valueOf(i), "Simple Message-T1-" + i);
+
+            producer.send(record, new Callback() {
+                @Override
+                public void onCompletion(RecordMetadata recordMetadata, Exception e) {
+                    if (e == null) {
+                        log.info("Receive metadata: \n" +
+                                "topic: " + recordMetadata.topic() + "\n" +
+                                "Partition: " + recordMetadata.partition() + "\n" +
+                                "offset: " + recordMetadata.offset() + "\n" +
+                                "Timestamp: " + recordMetadata.timestamp()
+
+                        );
+                    }
+                }
+            });
 //            producer.commitTransaction();
 
         }
