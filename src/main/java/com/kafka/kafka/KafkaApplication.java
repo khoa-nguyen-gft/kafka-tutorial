@@ -11,13 +11,14 @@ import org.slf4j.LoggerFactory;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 import java.util.Properties;
+import java.util.concurrent.ExecutionException;
 
 @SpringBootApplication
 public class KafkaApplication {
 
     private static final Logger log = LoggerFactory.getLogger(KafkaApplication.class);
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws ExecutionException, InterruptedException {
 
 //		SpringApplication.run(KafkaApplication.class, args);
 
@@ -34,7 +35,11 @@ public class KafkaApplication {
         for (int i = 0; i < 50; i++) {
             System.out.println("Sending i -->" + i);
 
-            ProducerRecord<String, String> record = new ProducerRecord<>("topicIn3", String.valueOf(i), "Simple Message-T1-" + i);
+            String topic = "topicIn4";
+            String message = "Simple Message-T1-" + i;
+            String keyMessage = "id_" + String.valueOf(i);
+
+            ProducerRecord<String, String> record = new ProducerRecord<>(topic, keyMessage, message);
 
             producer.send(record, new Callback() {
                 @Override
